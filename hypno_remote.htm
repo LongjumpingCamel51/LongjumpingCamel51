@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>Hypno Remote Soundboard</title>
+<script>
+DEFAULT_COMMANDS = 'Sit, Kneel, Stand at Attention';
+DEFAULT_VOICE = 'US English';
+
+speechSynthesis.onvoiceschanged = async () => {
+  var optgroup = document.querySelector('.voice_picker > optgroup');
+  optgroup.innerHTML = '';
+  for (voice of speechSynthesis.getVoices())
+  {
+    var opt = document.createElement('option');
+    opt.text = voice.name;
+    opt.value = voice.name;
+    optgroup.appendChild(opt);
+    if (voice.name.includes(DEFAULT_VOICE))
+    {
+      document.querySelector('.voice_picker').value = voice.name;
+    }
+  }
+}
+
+speechSynthesis.getVoices();
+
+var get_voice = () =>
+{
+  if (window.s_voice)
+  {
+    return window.s_voice;
+  }
+
+  for (v of speechSynthesis.getVoices())
+  {
+    if (v.name == window.s_voice_name)
+    {
+      window.s_voice = v;
+      return v;
+    }
+  }
+};
+
+var say = (t) =>
+{
+  console.log('say()', t);
+  return new Promise((resolve, reject) => {
+    var u = new SpeechSynthesisUtterance(t);
+    u.voice = get_voice();
+    u.onend = () => resolve();
+    u.onerror = () => reject();
+    speechSynthesis.speak(u);
+  });
+};
+
+var on_click = (evt) =>
+{
+  say(evt.target.value);
+}
+
+var do_setup = () =>
+{
+  var container = document.querySelector('.button_container');
+  for (c of document.querySelector('.commands').value.split(','))
+  {
+    var command = c.trim();
+    var button = document.createElement('input');
+    button.type = 'button';
+    button.value = command;
+    button.classList.add('button');
+    button.onclick = on_click;
+    container.appendChild(button);
+  }
+  
+  window.s_voice_name = document.querySelector('.voice_picker').value;
+  document.querySelector('.config').style.display = 'None';
+}
+
+window.onload = () =>
+{
+  document.querySelector('.commands').value = DEFAULT_COMMANDS;
+}
+
+</script>
+</head>
+<style>
+.button
+{
+  margin: 10px;
+  padding: 10px;
+}
+</style>
+<body>
+<div class = 'config'>
+Enter commands separated by commas: <input type='text' class='commands' /><br><br>
+Select a voice: <select class = 'voice_picker'><optgroup></optgroup></select><br><br>
+<input type = 'button' value = 'Start' class = 'button' onclick='do_setup()' />
+</div>
+<div class = 'button_container'></div>
+</body>
+</html>
