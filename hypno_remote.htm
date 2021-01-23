@@ -21,8 +21,6 @@ speechSynthesis.onvoiceschanged = async () => {
   }
 }
 
-speechSynthesis.getVoices();
-
 var get_voice = () =>
 {
   if (window.s_voice)
@@ -78,6 +76,7 @@ var do_setup = () =>
 window.onload = () =>
 {
   document.querySelector('.commands').value = DEFAULT_COMMANDS;
+  speechSynthesis.getVoices();
 }
 
 </script>
